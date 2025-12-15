@@ -36,6 +36,21 @@ It summarizes long text (articles, reports, emails, notes) using transformer mod
 
 ---
 
+## Evaluation
+
+BrieflyAI separates inference from evaluation, following standard NLP practice.
+
+- **Offline evaluation** is performed using ROUGE metrics on a small curated sample set with reference summaries.
+- **Online inference** (CLI and Gradio app) operates on arbitrary user-provided text, where reference summaries are unavailable. For these cases, BrieflyAI reports compression statistics and supports qualitative inspection.
+
+---
+## Limitations
+- ROUGE is computed only when a reference summary exists (offline or user-supplied).
+- Small evaluation sample is not a substitute for full benchmark datasets.
+- Summaries can occasionally miss details or rephrase in ways that reduce factual precision (common for abstractive models)
+
+---
+
 ## Setup & Installation
 
 ```bash
