@@ -44,22 +44,19 @@ def summarize_interface(text, file_path, model_choice, max_len, min_len, creativ
     Decides input source (file > text), runs the summarizer,
     returns summary text, stats, and an update to show/hide the download button.
     """
-    # 1) Decide source of text: file has priority over text box
+    # Decide source of text: file has priority over text box
     if file_path:
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 text_content = f.read()
         except Exception as e:
-            # Error case → hide download button
             return f"Error reading file: {e}", "", gr.update(visible=False)
     else:
         text_content = text or ""
 
     if not text_content.strip():
-        # No valid input → hide download button
         return "Please enter some text or upload a .txt file.", "", gr.update(visible=False)
 
-    # 2) Map model choice
     model_name = build_model_name(model_choice)
 
     # 3) Build summarizer with chosen settings
@@ -70,10 +67,8 @@ def summarize_interface(text, file_path, model_choice, max_len, min_len, creativ
         do_sample=bool(creative_mode)
     )
 
-    # 4) Generate summary
     summary = ts.summarize(text_content)
 
-    # 5) Compute stats
     orig_len, sum_len, reduction = compute_length_reduction(text_content, summary)
     stats = (
         f"Original length: {orig_len} words\n"
@@ -81,7 +76,6 @@ def summarize_interface(text, file_path, model_choice, max_len, min_len, creativ
         f"Reduction:       {reduction * 100:.1f}%"
     )
 
-    # 6) Just show the download button; file will be created when user clicks it
     download_visibility = gr.update(visible=True)
 
     return summary, stats, download_visibility
@@ -94,7 +88,7 @@ def generate_download_file(summary_text: str):
     """
     file_path = _write_summary_to_temp_file(summary_text)
     if file_path is None:
-        # If there's no summary, keep button as-is (no change)
+        # If there's no summary, keep button as it is (no change)
         return gr.update()
     # This sets the DownloadButton's internal 'value' to the file path,
     # which triggers the browser to start a download.
@@ -110,7 +104,7 @@ def clear_status():
 
 
 with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
-    # --- HEADER ---
+    # header
     gr.Markdown(
         """
         <div style="text-align: center; margin-bottom: 10px;">
@@ -125,9 +119,9 @@ with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
     # Status line (shows "Summarizing…" while running)
     status_text = gr.Markdown("")
 
-    # --- MAIN LAYOUT ---
+    # main layout
     with gr.Row():
-        # LEFT: Input panel
+        # input panel
         with gr.Column(scale=2):
             with gr.Group():
                 gr.Markdown("### 📥 Input")
@@ -148,7 +142,7 @@ with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
                     "_Note: If both text and file are provided, the **file** will be used._"
                 )
 
-        # RIGHT: Settings panel
+        # Settings panel
         with gr.Column(scale=1):
             with gr.Group():
                 gr.Markdown("### ⚙️ Settings")
@@ -159,7 +153,6 @@ with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
                     label="Model"
                 )
 
-                # Static "cheat sheet" so user can compare models before choosing
                 gr.Markdown(
                     """
 **Model details:**
@@ -206,7 +199,7 @@ with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
 
                 summarize_btn = gr.Button("Summarize", variant="primary")
 
-    # --- OUTPUT SECTION ---
+    # output section
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Group():
@@ -216,7 +209,7 @@ with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
                     label="Summary",
                     show_label=False
                 )
-                # Download button: starts hidden, becomes visible after first summary
+                # Download buttonstarts hidden, becomes visible after first summary
                 download_btn = gr.DownloadButton(
                     label="Download summary as .txt",
                     visible=False
@@ -231,7 +224,7 @@ with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
                     show_label=False
                 )
 
-    # --- WIRING: status + summarize chain ---
+
     summarize_btn.click(
         fn=set_status,
         inputs=None,
@@ -245,8 +238,6 @@ with gr.Blocks(title="BrieflyAI – Text Summarizer") as demo:
         inputs=None,
         outputs=status_text
     )
-
-    # --- WIRING: download button click ---
     download_btn.click(
         fn=generate_download_file,
         inputs=summary_output,

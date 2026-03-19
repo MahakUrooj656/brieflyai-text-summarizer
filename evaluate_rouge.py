@@ -103,7 +103,6 @@ def main() -> None:
         print()
 
     # ROUGE-Lsum expects sentences separated by newlines for best results
-    # We'll replace ". " with ".\n" as a lightweight formatting trick
     predictions_lsum = [p.replace(". ", ".\n") for p in predictions]
     references_lsum = [r.replace(". ", ".\n") for r in references]
 
@@ -113,7 +112,6 @@ def main() -> None:
         use_stemmer=True,
     )
 
-    # results includes: rouge1, rouge2, rougeL, rougeLsum
     print("ROUGE Results:")
     print(f"ROUGE-1   : {results['rouge1']:.4f}")
     print(f"ROUGE-2   : {results['rouge2']:.4f}")

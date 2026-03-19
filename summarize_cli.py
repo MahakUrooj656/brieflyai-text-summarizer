@@ -1,6 +1,6 @@
 from summarizer import TextSummarizer, compute_length_reduction
 import sys
-import os #helps us check if an argument is a valid file path.
+import os 
 
 # Default values
 model_name = "facebook/bart-large-cnn"
@@ -24,8 +24,7 @@ if "--model" in sys.argv:
             print(f"Unknown model: {selected_model}")
             sys.exit(1)
 
-        # Remove the model option from arguments so input_text stays clean
-        del sys.argv[model_index:model_index+2]
+        del sys.argv[model_index:model_index+2] # Remove the model option from arguments
 
     except (IndexError, ValueError):
         print("Usage: --model <bart|distilbart|t5>")
@@ -35,8 +34,7 @@ if "--model" in sys.argv:
 if "--max" in sys.argv:
     try:
         max_index = sys.argv.index("--max")
-        max_length = int(sys.argv[max_index + 1])  # convert string to int
-        # Remove the flag and its value from sys.argv
+        max_length = int(sys.argv[max_index + 1])  
         
         del sys.argv[max_index:max_index + 2]
 
@@ -48,9 +46,8 @@ if "--max" in sys.argv:
 if "--min" in sys.argv:
     try:
         min_index = sys.argv.index("--min")
-        min_length = int(sys.argv[min_index + 1])  # convert string to 
+        min_length = int(sys.argv[min_index + 1])  
         
-        # Remove the flag and its value from sys.argv
         del sys.argv[min_index:min_index + 2]
 
     except (IndexError, ValueError):
@@ -63,7 +60,6 @@ if "--out" in sys.argv:
         out_index = sys.argv.index("--out")
         output_file = sys.argv[out_index + 1]
 
-        # Remove the flag and its value from sys.argv
         del sys.argv[out_index : out_index + 2]
 
     except (IndexError, ValueError):
@@ -78,22 +74,20 @@ if len(sys.argv) < 2:
     print ("python summarize_cli.py path/to/file.txt")
     sys.exit(1)
 
-arg_text= "".join(sys.argv[1:]) #combine everything after the script name into one string
+arg_text= "".join(sys.argv[1:]) 
 
 input_text = None
 
-# If there is exactly one argument and it looks like a .txt file, try to read it
 if len(sys.argv) == 2 and sys.argv[1].lower().endswith(".txt") and os.path.isfile(sys.argv[1]):
     file_path = sys.argv[1]
     print(f"Reading text from file: {file_path}")
     with open(file_path, "r", encoding="utf-8") as f:
-        input_text = f.read() #Read the entire contents of the file as a single string.
+        input_text = f.read() 
 else:
-    # Otherwise, treat everything as direct text input
     input_text = arg_text
      
 
-# 2) Create a TextSummarizer object
+#textsummarizer object
 ts = TextSummarizer(
     model_name=model_name,
     max_length=max_length,
@@ -101,18 +95,15 @@ ts = TextSummarizer(
     do_sample=False
 )
 
-# 3) Summarize the text
 summary = ts.summarize(input_text)
 orig_len, sum_len, reduction = compute_length_reduction(input_text, summary)
 
-# 4) Print summary
-print("=== STATS ===")
 print(f"Original length: {orig_len} words")
 print(f"Summary length:  {sum_len} words")
 print(f"Reduction:       {reduction * 100:.1f}%")
 
 
-# If the user provided an output file, write summary into it
+# If user provided an output file, write summary into it
 if output_file:
     try:
         with open(output_file, "w", encoding="utf-8") as f:
